@@ -12,42 +12,50 @@
     $comment = $_POST ['comment'];
     $order = 'DarkBeefBurger за 500 рублей, 1 шт';
 
-    $result = $DB->query("SELECT * FROM burger WHERE Name LIKE '%".$name."%'");
 
-    if ($result->rowCount()>0)
+    function User($name,$order,$DB)
     {
-        echo "Вы уже зарегистрированы, мы собираем Ваш заказ <b>$name</b>";
+        $result = $DB->query("SELECT * FROM burger WHERE Name LIKE '%" . $name . "%'");
 
-    }else{
-        echo "Спасибо,что выбрали нас. Мы собираем Ваш заказ <b>$name</b>";
+        if ($result->rowCount() > 0) {
+            echo "Вы уже зарегистрированы, мы собираем Ваш заказ <b>$name</b>";
+
+        } else {
+            echo "Спасибо,что выбрали нас. Мы собираем Ваш заказ <b>$name</b>";
+        }
+
+        $query = "INSERT INTO orderburger (`name`,`order`)VALUES ('$name','$order')";
+        $DB->query($query);
     }
-
-    $query = "INSERT INTO orderburger (`name`,`order`)VALUES ('$name','$order')";
-    $reg=$DB->query($query);
-
-
-
-
-   date_default_timezone_set('Asia/Yekaterinburg');
-   $a = Date('d m Y H.i');
-   $file = 'Заказ '.$name. " ".$a.' .txt';
-
-    $orderID= $DB->query("SELECT MAX(id) FROM orderburger ");
-    $messageID= $DB->query("SELECT COUNT(id) FROM orderburger WHERE name='$name'");
-
-    $message = "Заказ № ". $orderID->fetch()[0]. ".<br> Ваш заказ будет доставлен по адресу: ул. " . $street
-    . " дом № ".$home . " квартира № ". $appt. "Спасибо! Это уже ". $messageID->fetch()[0]. " заказ";
-
-
-
-    if ($put=false)
+    function Order($name,$DB,$street,$home,$appt)
     {
-        file_put_contents ("order/$file",$message);
+        date_default_timezone_set('Asia/Yekaterinburg');
+        $a = Date('d m Y H.i');
+        $file = 'Заказ '.$name. " ".$a.' .txt';
+
+        $orderID= $DB->query("SELECT MAX(id) FROM orderburger ");
+        $messageID= $DB->query("SELECT COUNT(id) FROM orderburger WHERE name='$name'");
+
+        $message = "Заказ № ". $orderID->fetch()[0]. ".<br> Ваш заказ будет доставлен по адресу: ул. " . $street
+            . " дом № ".$home . " квартира № ". $appt. "Спасибо! Это уже ". $messageID->fetch()[0]. " заказ";
+
+
+
+        if ($put=false)
+        {
+            file_put_contents ("order/$file",$message);
+        }
+        else{
+            $put= mkdir('order',FILE_APPEND);
+            file_put_contents ("order/$file",$message);
+        }
     }
-    else{
-        $put= mkdir('order',FILE_APPEND);
-        file_put_contents ("order/$file",$message);
-    }
+
+    User($name,$order,$DB);
+    Order($name,$DB,$street,$home,$appt);
+
+
+
 
 
 
