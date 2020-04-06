@@ -13,6 +13,7 @@ $comment = $_POST ['comment'];
 $order = 'DarkBeefBurger за 500 рублей, 1 шт';
 
 
+
 function User($name,$order,$DB)
 {
     $result = $DB->query("SELECT * FROM burger WHERE Name LIKE '%" . $name . "%'");
@@ -27,7 +28,7 @@ function User($name,$order,$DB)
     $query = "INSERT INTO orderburger (`name`,`order`)VALUES ('$name','$order')";
     $DB->query($query);
 }
-function Order($name,$DB,$street,$home,$appt,$host,$port,$encryption,$Username,$password)
+function Order($name,$DB,$street,$home,$appt,$host,$port,$encryption,$password,$Username)
 {
     date_default_timezone_set('Asia/Yekaterinburg');
     $a = Date('d m Y H.i');
@@ -65,7 +66,7 @@ function Order($name,$DB,$street,$home,$appt,$host,$port,$encryption,$Username,$
 }
 
 User($name,$order,$DB);
-Order($name,$DB,$street,$home,$appt,$host,$port,$encryption,$Username,$password);
+Order($name,$DB,$street,$home,$appt,$host,$port,$encryption,$password,$Username);
 
 
 
