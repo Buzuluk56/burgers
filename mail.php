@@ -1,6 +1,7 @@
 <?php
 require_once 'connection.php';
 
+
 $name = $_POST['name'];
 $phone = $_POST['phone'];
 $email = $_POST['email'];
@@ -14,59 +15,68 @@ $order = 'DarkBeefBurger за 500 рублей, 1 шт';
 
 
 
-function User($name,$order,$DB)
+function UserAuth($name,$DB,$phone,$email)
 {
-    $result = $DB->query("SELECT * FROM burger WHERE Name LIKE '%" . $name . "%'");
+    $result = $DB->query("SELECT * FROM users_id WHERE Name LIKE '%" . $name . "%'". "AND phone LIKE'%".$phone."%'");
 
     if ($result->rowCount() > 0) {
-        echo "Вы уже зарегистрированы, мы собираем Ваш заказ <b>$name</b>";
+        echo "<b>$name</b>, вы уже зарегистрированы, мы собираем Ваш заказ";
 
     } else {
-        echo "Спасибо,что выбрали нас. Мы собираем Ваш заказ <b>$name</b>";
+        echo "Спасибо - это ваш первый заказ";
+        $DB->query("INSERT INTO users_id (`name`,`phone`,`email`) VALUES ('$name','$phone','$email')");
     }
-
-    $query = "INSERT INTO orderburger (`name`,`order`)VALUES ('$name','$order')";
-    $DB->query($query);
 }
-function Order($name,$DB,$street,$home,$appt,$host,$port,$encryption,$password,$Username)
+
+function UserOrder($DB,$name,$street,$home,$part,$appt,$floor,$comment,$phone)
 {
-    date_default_timezone_set('Asia/Yekaterinburg');
-    $a = Date('d m Y H.i');
-    $file = 'Заказ '.$name. " ".$a.' .txt';
+    $userId = $DB->query("SELECT id FROM users_id WHERE Name LIKE '%" . $name . "%'". "AND phone LIKE'%".$phone."%'");
+    $userId = $userId->fetch()[0];
 
-    $orderID= $DB->query("SELECT MAX(id) FROM orderburger ");
-    $messageID= $DB->query("SELECT COUNT(id) FROM orderburger WHERE name='$name'");
+    $DB->query("INSERT INTO orders (`User_id`,`street`,`home`,`part`,`appt`,`floor`,`comment`)
+                VALUES ('$userId','$street','$home','$part','$appt','$floor','$comment')");
 
-    $subject = "Заказ № ". $orderID->fetch()[0];
-    $messageOrder = " Ваш заказ будет доставлен по адресу: ул. " . $street
-        . " дом № ".$home . " квартира № ". $appt. "Спасибо! Это уже ". $messageID->fetch()[0]. " заказ";
 
-    try{
-        $transport = new Swift_SmtpTransport($host,$port,$encryption);
-        $transport ->setUsername($Username);
-        $transport->setPassword($password);
+}
+
+function Order($name,$DB,$street,$home,$appt,$UserRoot,$phone)
+{
+    $orderID = $DB->query("SELECT MAX(id) FROM orders "); // номер заказа
+    $subject = "Заказ № " . $orderID->fetch()[0];
+
+    $userId = $DB->query("SELECT id FROM users_id WHERE Name LIKE '%" . $name . "%'". "AND phone LIKE'%".$phone."%'");
+    $userId = $userId->fetch()[0];
+
+    $messageID = $DB->query("SELECT COUNT(id) FROM orders WHERE User_id='$userId'"); // кол-во заказов
+    $messageID = $messageID->fetch()[0];
+
+    $messageOrder = "Дорогой, ".$name.". Ваш заказ будет доставлен по адресу: ул. " . $street
+        . " дом № " . $home . " квартира № " . $appt . ". Спасибо! Это уже " . $messageID . " заказ";
+
+    try {
+        $transport = new Swift_SmtpTransport($UserRoot['host'], $UserRoot['port'], $UserRoot['encryption']);
+        $transport->setUsername($UserRoot['Username']);
+        $transport->setPassword($UserRoot['password']);
 
         $mailer = new Swift_Mailer($transport);
 
         $message = (new Swift_Message($subject))
-            ->setFrom(['Buzuluk56-1@yandex.ru'=>'Buzuluk56-1@yandex.ru'])
+            ->setFrom(['Buzuluk56-1@yandex.ru' => 'Buzuluk56-1@yandex.ru'])
             ->setTo(['buzuluk56@yandex.ru'])
             ->setBody($messageOrder);
 
         $mailer->send($message);
 
-    }catch(Exception $e){
+    } catch (Exception $e) {
         var_dump($e->getMessage());
-        echo '<pre>'. print_r($e->getTrace(),1);
+        echo '<pre>' . print_r($e->getTrace(), 1);
     }
-
-
-
-
 }
 
-User($name,$order,$DB);
-Order($name,$DB,$street,$home,$appt,$host,$port,$encryption,$password,$Username);
+
+UserAuth($name,$DB,$phone,$email);
+UserOrder($DB,$name,$street,$home,$part,$appt,$floor,$comment,$phone);
+Order($name,$DB,$street,$home,$appt,$UserRoot,$phone);
 
 
 
