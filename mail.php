@@ -2,15 +2,15 @@
 require_once 'connection.php';
 
 
-$name = $_POST['name'];
-$phone = $_POST['phone'];
-$email = $_POST['email'];
-$street = $_POST['street'];
-$home = $_POST ['home'];
-$part = $_POST ['part'];
-$appt = $_POST ['appt'];
-$floor = $_POST ['floor'];
-$comment = $_POST ['comment'];
+$name = htmlspecialchars($_POST['name']);
+$phone = htmlspecialchars($_POST['phone']);
+$email = htmlspecialchars($_POST['email']);
+$street = htmlspecialchars($_POST['street']);
+$home = htmlspecialchars($_POST ['home']);
+$part = htmlspecialchars($_POST ['part']);
+$appt = htmlspecialchars($_POST ['appt']);
+$floor = htmlspecialchars($_POST ['floor']);
+$comment = htmlspecialchars($_POST ['comment']);
 $order = 'DarkBeefBurger за 500 рублей, 1 шт';
 
 
@@ -24,7 +24,9 @@ function UserAuth($name,$DB,$phone,$email)
 
     } else {
         echo "Спасибо - это ваш первый заказ";
-        $DB->query("INSERT INTO users_id (`name`,`phone`,`email`) VALUES ('$name','$phone','$email')");
+        $query ="INSERT INTO users_id (`name`,`phone`,`email`) VALUES (:name,:phone,:email)";
+        $prepared = $DB->prepare($query);
+        $ret = $prepared->execute(['name'=>$name, 'phone'=>$phone, 'email'=>$email]);
     }
 }
 
@@ -33,9 +35,12 @@ function UserOrder($DB,$name,$street,$home,$part,$appt,$floor,$comment,$phone)
     $userId = $DB->query("SELECT id FROM users_id WHERE Name LIKE '%" . $name . "%'". "AND phone LIKE'%".$phone."%'");
     $userId = $userId->fetch()[0];
 
-    $DB->query("INSERT INTO orders (`User_id`,`street`,`home`,`part`,`appt`,`floor`,`comment`)
-                VALUES ('$userId','$street','$home','$part','$appt','$floor','$comment')");
+    $query = "INSERT INTO orders (`User_id`,`street`,`home`,`part`,`appt`,`floor`,`comment`)
+                VALUES (:userId,:street,:home,:part,:appt,:floor,:comment)";
 
+    $prepared = $DB->prepare($query);
+    $ret = $prepared->execute(['userId'=>$userId, 'street'=>$street, 'home'=>$home,
+                            'part'=>$part, 'appt'=>$appt, 'floor'=>$floor, 'comment'=>$comment]);
 
 }
 
