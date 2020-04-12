@@ -24,7 +24,7 @@ function UserAuth($name,$DB,$phone,$email)
 
     } else {
         echo "Спасибо - это ваш первый заказ";
-        $query ="INSERT INTO users_id (`name`,`phone`,`email`) VALUES (:name,:phone,:emailь)";
+        $query ="INSERT INTO users_id (`name`,`phone`,`email`) VALUES (:name,:phone,:email)";
         $prepared = $DB->prepare($query);
         $ret = $prepared->execute(['name'=>$name, 'phone'=>$phone, 'email'=>$email]);
     }
