@@ -11,7 +11,7 @@ $part = htmlspecialchars($_POST ['part']);
 $appt = htmlspecialchars($_POST ['appt']);
 $floor = htmlspecialchars($_POST ['floor']);
 $comment = htmlspecialchars($_POST ['comment']);
-$order = 'DarkBeefBurger за 500 рублей, 1 шт';
+$orders = 'DarkBeefBurger за 500 рублей, 1 шт';
 
 
 
@@ -24,23 +24,23 @@ function UserAuth($name,$DB,$phone,$email)
 
     } else {
         echo "Спасибо - это ваш первый заказ";
-        $query ="INSERT INTO users_id (`name`,`phone`,`email`) VALUES (:name,:phone,:email)";
+        $query ="INSERT INTO users_id (`name`,`phone`,`email`) VALUES (:name,:phone,:emailь)";
         $prepared = $DB->prepare($query);
         $ret = $prepared->execute(['name'=>$name, 'phone'=>$phone, 'email'=>$email]);
     }
 }
 
-function UserOrder($DB,$name,$street,$home,$part,$appt,$floor,$comment,$phone)
+function UserOrder($DB,$name,$street,$home,$part,$appt,$floor,$comment,$phone,$orders)
 {
     $userId = $DB->query("SELECT id FROM users_id WHERE Name LIKE '%" . $name . "%'". "AND phone LIKE'%".$phone."%'");
     $userId = $userId->fetch()[0];
 
-    $query = "INSERT INTO orders (`User_id`,`street`,`home`,`part`,`appt`,`floor`,`comment`)
-                VALUES (:userId,:street,:home,:part,:appt,:floor,:comment)";
+    $query = "INSERT INTO orders (`User_id`,`street`,`home`,`part`,`appt`,`floor`,`comment`,`userOrder`)
+                VALUES (:userId,:street,:home,:part,:appt,:floor,:comment,:userOrder)";
 
     $prepared = $DB->prepare($query);
     $ret = $prepared->execute(['userId'=>$userId, 'street'=>$street, 'home'=>$home,
-                            'part'=>$part, 'appt'=>$appt, 'floor'=>$floor, 'comment'=>$comment]);
+                            'part'=>$part, 'appt'=>$appt, 'floor'=>$floor, 'comment'=>$comment, 'userOrder'=>$orders]);
 
 }
 
@@ -80,7 +80,7 @@ function Order($name,$DB,$street,$home,$appt,$UserRoot,$phone)
 
 
 UserAuth($name,$DB,$phone,$email);
-UserOrder($DB,$name,$street,$home,$part,$appt,$floor,$comment,$phone);
+UserOrder($DB,$name,$street,$home,$part,$appt,$floor,$comment,$phone,$orders);
 Order($name,$DB,$street,$home,$appt,$UserRoot,$phone);
 
 
