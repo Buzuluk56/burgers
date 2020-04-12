@@ -22,10 +22,11 @@
 
     echo "<table border=\"1\">";
     echo "<tr><td><b>№</b></td><td><b>Имя</b></td><td><b>Улица</b></td><td><b>Дом</b></td><td><b>Корпус</b>
-            </td><td><b>Квартира</b></td><td><b>Этаж</b></td><td><b>Комментарий</b></td></tr>";
+            </td><td><b>Квартира</b></td><td><b>Этаж</b></td><td><b>Комментарий</b></td><td><b>Заказ</b></td></tr>";
     foreach ($orders as $item)
     {
         echo "<tr><td>".$item[0]."</td><td>".$item['name']."</td><td>".$item['street']."</td><td>".$item['home']."</td>
-        <td>".$item['part']."</td><td>".$item['appt']."</td><td>".$item['floor']."</td><td>".$item['comment']."</td></tr>";
+        <td>".$item['part']."</td><td>".$item['appt']."</td><td>".$item['floor']."</td><td>".$item['comment']."</td>
+        <td>".$item['userOrder']."</td></tr>";
     }
     echo "</table>";
